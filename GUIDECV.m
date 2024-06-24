@@ -44,7 +44,7 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% This is executed before GUI appears.
+% --- Executes just before GUIDECV is made visible.
 function GUIDECV_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
@@ -87,6 +87,11 @@ global foreobj
 global pic_num
 global foreground
 global background
+
+
+% Globale Variablen für die Maus- und Tastatursteuerung
+global camPos camTarget;
+global lastMousePos;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -284,7 +289,55 @@ end
  pic_num=ceil(max(size(img(:,:)))/5);
  foreground = {};
   
+function initWindow(out)
+        [mRear,nRear,pRear] = size(out{1});
+        [mFloor,nFloor,pFloor] = size(out{2});
+        MainFigureInitPos = [nRear/2,mRear/2, -nFloor];  % The initial position of the main figure
+        MainFigureSize = [];  % The size of the figure
+        MainAxesInitPos = []; % The initial position of the axes IN the figure
+        
+        % Handles
+        MainFigureHdl = [];
+        MainAxesHdl = [];
+        SceneHandle = [];
+        
+        % Keyboard-related variables
+        KeyStatus = [];
+        LastKeyStatus = [];
+        KeyNames = [];
 
+
+
+
+
+        % initWindow - initialize the main window, axes and image objects
+        MainFigureHdl = figure('Name', 'Tour into the picture', ...
+            'NumberTitle' ,'off', ...
+            'Units', 'pixels', ...
+            'Position', MainFigureInitPos); 
+            
+        MainAxesHdl = axes('Parent', MainFigureHdl, ...
+            'Units', 'normalized',...
+            'Position', [MainAxesInitPos, 1-MainAxesInitPos.*2], ...
+            'color', [0 0 0], ...
+            'XLim', [0 MainAxesSize(1)]-0.5, ...
+            'YLim', [0 MainAxesSize(2)]-0.5, ...
+            'YDir', 'reverse', ...
+            'NextPlot', 'add', ...
+            'Visible', 'on', ...
+            'XTick',[], ...
+            'YTick',[]);
+        set(gcf, 'KeyPressFcn', @keypress);
+        % Maus-Callback-Funktion
+        set(gcf, 'WindowButtonMotionFcn', @mouseMove);
+        SceneHandle = image(0, 0, [],...
+            'Parent', MainAxesHdl,...
+            'Visible', 'on');
+
+        screenCenter = get(0,'ScreenSize');
+        screenCenter = screenCenter(3:4)./2;
+        set(0,'PointerLocation',screenCenter)
+    
    
 
 
@@ -311,6 +364,8 @@ global test
 global foreground
 global background
 global pic_num
+global camPos
+global camTarget
 hold off
 x_max=floor(x_max);
 y_max=floor(y_max);
@@ -322,8 +377,11 @@ vanishing_point=floor(vanishing_point);
 box=[min_y,max_y,min_x,max_x];
 mx=0;my=0;mz=0;rx=0;ry=0;rz=0;
 geo=[mx,my,mz,rx,ry,rz];
+ %[out,test]=Tour_into_the_3d_picture(img,vanishing_point,box);
+ %save('raumdaten.mat', 'out');
+ load('raumdaten.mat', 'out');
+initWindow(out);
 
- [out,test]=Tour_into_the_3d_picture(img,vanishing_point,box);
  f = figure;
  surface_3d(out)
  hold on
@@ -334,15 +392,83 @@ geo=[mx,my,mz,rx,ry,rz];
         h.AlphaData = outputAlpha;
         h.FaceAlpha = 'flat';
  end
-  cameratoolbar('NoReset')
- tb = cameratoolbar(f);
- view(0,-80)
- setCamera(out)
+  %cameratoolbar('NoReset')
+ %tb = cameratoolbar(f);
+ %view(0,-80)
+ %setCamera(out)
+ [mRear,nRear,pRear] = size(out{1});
+[mFloor,nFloor,pFloor] = size(out{2});
+
+ ax = gca;
+%  ax.CameraPosition = [nRear/2,mRear/2, -mFloor/2];
+ ax.CameraTarget = [nRear/2,mRear/2,1];
+ camPos = [nRear/2,mRear/2, -nFloor];
+ camTarget = vanishing_point;
+ campos( [nRear/2,mRear/2, -nFloor])
+  ax.CameraViewAngle = 90;
+
+ ax.Projection = 'perspective';
+ % Initiale Kamera-Position
+
+    % Initiale Werte
+    lastMousePos = [];
  axis off
+ % Tastatur-Callback-Funktion
 
- 
- 
 
+function keypress(~, event)
+    % Zugriff auf die globale Kamera-Position
+    global camPos camTarget;
+    
+    % Bewegungsschritte
+   stepSize = 10;
+    
+    % Bewegung basierend auf Tasteneingaben
+    switch event.Key
+        case 'w'
+            camPos = camPos + [0 stepSize 0];
+        case 's'
+            camPos = camPos - [0 stepSize 0];
+        case 'a'
+            camPos = camPos - [stepSize 0 0];
+        case 'd'
+            camPos = camPos + [stepSize 0 0];
+        case 'uparrow'
+            camPos = camPos + [0 0 stepSize];
+        case 'downarrow'
+            camPos = camPos - [0 0 stepSize];
+    end
+    
+    % Aktualisieren der Kamera-Position
+    campos(camPos);
+    camtarget(camTarget); 
+ 
+function mouseMove(~, ~)
+    % Zugriff auf die globalen Variablen
+    global camPos camTarget;
+    global lastMousePos;
+    
+    % Aktuelle Mausposition abrufen
+    currMousePos = get(gcf, 'CurrentPoint');
+    
+    if isempty(lastMousePos)
+        lastMousePos = currMousePos;
+    end
+    
+    % Berechnung der Mausbewegung
+    deltaMousePos = currMousePos - lastMousePos;
+    
+    % Empfindlichkeit der Maussteuerung
+    sensitivity = 1;
+    
+    % Aktualisieren der Zielposition der Kamera basierend auf der Mausbewegung
+    camTarget = camTarget + [-deltaMousePos(1) deltaMousePos(2) 0] * sensitivity;
+    
+    % Aktualisieren der Kamera
+    camtarget(camTarget);
+    
+    % Speichern der aktuellen Mausposition
+    lastMousePos = currMousePos;
 
 % --- Executes on slider movement.
 function slider1_Callback(hObject, eventdata, handles)

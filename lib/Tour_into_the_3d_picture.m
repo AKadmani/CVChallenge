@@ -48,5 +48,5 @@ recVertex(3,:)=recVertex(3,:)*pic_num;
 
 [out,test] =name(estimatedVertex,recVertex,img);
 %out=to_3d_point(img,vanishing_point,recVertex);
-%surface_3d(out);
+% surface_3d(out);
 end

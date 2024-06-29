@@ -1,16 +1,24 @@
-function [foreground, img]= maskBackground(img, min_y_fore,max_y_fore,min_x_fore,max_x_fore)
-foreground = [];
-L = superpixels(img,500);
-y_sp_fore=[max_y_fore;max_y_fore;min_y_fore;min_y_fore]';
-x_sp_fore=[min_x_fore;max_x_fore;max_x_fore;min_x_fore]';
-
-roi = poly2mask(x_sp_fore,y_sp_fore,size(L,1),size(L,2));
-BW = grabcut(img,L,roi);
-% BW = imcrop(img,x_sp_fore,y_sp_fore);
-foreground= img;
-foreground(repmat(~BW,[1 1 3])) = 0;
-% foreground = fgTransparency(foreground)
-
-img(repmat(BW,[1 1 3])) = 0;
-img = inpaintExemplar(img,BW,'FillOrder','tensor');
+function [foreground, img] = maskBackground(img, min_y_fore, max_y_fore, min_x_fore, max_x_fore)
+    % Preallocate foreground
+    foreground = zeros(size(img), 'like', img);
+      
+    % Use fewer superpixels for faster processing
+    numSuperpixels = 300;  % Reduced from 500
+    L = superpixels(img, numSuperpixels);
+    
+    % Create ROI mask more efficiently
+    [m, n, ~] = size(img);
+    [X, Y] = meshgrid(1:n, 1:m);
+    roi = inpolygon(X, Y, [min_x_fore, max_x_fore, max_x_fore, min_x_fore], ...
+                         [min_y_fore, min_y_fore, max_y_fore, max_y_fore]);
+    
+    BW = grabcut(img, L, roi);
+    
+    % Use logical indexing for efficiency
+    foreground_mask = repmat(BW, [1 1 3]);
+    foreground(foreground_mask) = img(foreground_mask);
+    
+    % Inpaint background
+    img(foreground_mask) = 0;
+    img = inpaintExemplar(img, BW, 'FillOrder', 'tensor');
 end

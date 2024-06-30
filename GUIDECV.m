@@ -96,22 +96,22 @@ guidata(hObject, handles);
 
 % --- Outputs from this function are returned to the command line.
 function varargout = GUIDECV_OutputFcn(hObject, eventdata, handles) 
-% varargout  cell array for returning output args (see VARARGOUT);
-% hObject    handle to figure
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-set(handles.axes3,'visible','off'); % hide the axes
-ax2=axes('units','normalized','pos',[0.75 0.75 0.25 0.25]); % Create axes
-uistack(ax2,'top');  %Reorder the view cascade for UI components
-addpath(genpath('./')); 
-image_name="./img/tum_logo.png";
-ii=imread(image_name);%Add tumlogo
-image(ii);
-colormap gray %View and set the current colormap
-set(ax2,'handlevisibility','off','visible','off');% hide the axes
-
-% Get default command line output from handles structure
-varargout{1} = handles.output;
+% % varargout  cell array for returning output args (see VARARGOUT);
+% % hObject    handle to figure
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% set(handles.axes3,'visible','off'); % hide the axes
+% ax2=axes('units','normalized','pos',[0.75 0.75 0.25 0.25]); % Create axes
+% uistack(ax2,'top');  %Reorder the view cascade for UI components
+% addpath(genpath('./')); 
+% image_name="./img/tum_logo.png";
+% ii=imread(image_name);%Add tumlogo
+% image(ii);
+% colormap gray %View and set the current colormap
+% set(ax2,'handlevisibility','off','visible','off');% hide the axes
+% 
+% % Get default command line output from handles structure
+% varargout{1} = handles.output;
 
 
 % --- Executes on button press in pushbutton1.

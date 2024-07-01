@@ -323,17 +323,11 @@ box=[min_y,max_y,min_x,max_x];
 mx=0;my=0;mz=0;rx=0;ry=0;rz=0;
 geo=[mx,my,mz,rx,ry,rz];
 
- [walls,test]=Tour_into_the_3d_picture(img,vanishing_point,box);
+ [walls,scale]=Tour_into_the_3d_picture(img,vanishing_point,box);
+ room3D = Navigation3D(walls);
+ room3D.renderForeground(foreground,foreobj,FGVertex,scale)
 
- Navigation3D(walls);
- hold on
- if numel(foreground) ~= 0
-       [X,Y,Z,C,outputAlpha] = surfaceFG_3d(foreground,out,FGVertex,foreobj,test,pic_num);
-        h = surface(X,Y,Z,C);
-        set(h,'LineStyle','none');
-        h.AlphaData = outputAlpha;
-        h.FaceAlpha = 'flat';
- end
+
 
 
  

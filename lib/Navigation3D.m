@@ -1,7 +1,7 @@
 % Navigation3D.m
 % Author: Vincent Amberger
-% Date: June 24, 2024
-% Version: 1.0
+% Date: July 01, 2024
+% Version: 2.0
 % Description: This class creates a 3D room visualization with the ability to move the camera, 
 %              change the camera target, and zoom in and out using the mouse and keyboard inputs.
 

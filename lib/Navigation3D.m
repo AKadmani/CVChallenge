@@ -88,12 +88,12 @@ classdef Navigation3D < handle
             C = walls{3};
             h3 = surface(X_floor, Y_floor, Z_floor, C, 'Parent', obj.Axis);
             set(h3, 'LineStyle', 'none');
-            
+
             % Right Wall
             [x, y, ~] = size(walls{4});
             [Z, Y] = meshgrid(-y:-1, 1:x);
             X = yBack * ones(x, y);
-            C = fliplr(walls{4});
+            C = rot90(walls{4},2);
             h4 = surface(X, Y, Z, C, 'Parent', obj.Axis);
             set(h4, 'LineStyle', 'none');
 

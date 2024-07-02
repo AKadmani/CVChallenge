@@ -93,7 +93,7 @@ classdef Navigation3D < handle
             [x, y, ~] = size(walls{4});
             [Z, Y] = meshgrid(-y:-1, 1:x);
             X = yBack * ones(x, y);
-            C = fliplr(walls{4});
+            C = rot90(walls{4},2);
             h4 = surface(X, Y, Z, C, 'Parent', obj.Axis);
             set(h4, 'LineStyle', 'none');
 

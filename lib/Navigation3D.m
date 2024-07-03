@@ -106,7 +106,7 @@ classdef Navigation3D < handle
             set(h5, 'LineStyle', 'none');
 
             view(obj.Axis, 3); % 3D Ansicht setzen
-            camlight(obj.Axis, 'headlight'); % Beleuchtung hinzufügen
+            % camlight(obj.Axis, 'headlight'); % Beleuchtung hinzufügen
             lighting(obj.Axis, 'gouraud'); % Glatte Beleuchtung
 
             axis(obj.Axis, 'equal');

@@ -41,7 +41,7 @@ function outputImage = processPlane(img, estimatedVertex, recVertexScaled, verte
     end
 
     % Compute transformation
-    tform = fitgeotrans(estVert, recVert, 'projective');
+    tform = fitgeotform2d(estVert, recVert, 'projective');
 
     % Determine region of interest
     minX = floor(min(estVert(:,1)));

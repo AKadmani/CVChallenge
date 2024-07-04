@@ -1,4 +1,4 @@
 function main()
-GUIDECV
+    % Create an instance of app
+    app = CVChallengeApp;
 end
-

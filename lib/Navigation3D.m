@@ -1,7 +1,7 @@
 % Navigation3D.m
 % Author: Vincent Amberger
-% Date: July 01, 2024
-% Version: 2.0
+% Date: July 06, 2024
+% Version: 3.0
 % Description: This class creates a 3D room visualization with the ability to move the camera, 
 %              change the camera target, and zoom in and out using the mouse and keyboard inputs.
 
@@ -13,6 +13,8 @@ classdef Navigation3D < handle
          currentCameraPosition      %Camera position [x, y, z]
          currentCameraDirection     %Camera direction [x, y, z]
          walls                      %Walls of the 3D-Room -> 5 cellArray
+         startCameraPosition        %Camera position [x, y, z]
+         startCameraDirection       %Camera direction [x, y, z]
     end
     
     methods
@@ -27,15 +29,17 @@ classdef Navigation3D < handle
 
         function obj = initializeScene(obj, walls)
             [xBack,yBack,~] = size(walls{1});
-            [~,y,~] = size(walls{2});
+            [~,y,~] = size(walls{3});
             
             %Starting Position and Direction of the Camera
-            %Startingpos -> Middle of the room
-            obj.currentCameraPosition = [xBack/2,yBack/2, -y];
-            obj.currentCameraDirection = [0, 0, 1];
+            %Startingpos -> Center of Rearwall + just outside of the room
+            obj.startCameraPosition    = [yBack/2,xBack/2, -1.3*y];
+            obj.startCameraDirection   = [0, 0, 1];
+            obj.currentCameraPosition  = obj.startCameraPosition;
+            obj.currentCameraDirection = obj.startCameraDirection;
             
             % Initialize the main window and axes
-            obj.SceneHandle = figure('Name', '3D Raum', 'NumberTitle', 'off');
+            obj.SceneHandle = figure('Name', 'Tour into the Picture', 'NumberTitle', 'off');
             obj.Axis = axes('Parent', obj.SceneHandle, 'Units', 'normalized', 'Cameraposition', obj.currentCameraPosition);
         
             % Setup callbacks for mouse movement, keyboard press, and mouse scroll
@@ -62,55 +66,66 @@ classdef Navigation3D < handle
         function obj = renderWalls(obj, walls)
             % Render 3D surfaces based on input data
             hold(obj.Axis, 'on');
+            
 
             %Background
-            [xBack, yBack, ~] = size(walls{1});
+            rearWall = walls{1};
+            [xBack, yBack, ~] = size(rearWall);
             [X, Y] = meshgrid(1:yBack, 1:xBack);
             Z = zeros(xBack, yBack);
-            C = walls{1};
-            h1 = surface(X, Y, Z, C, 'Parent', obj.Axis);
-            set(h1, 'LineStyle', 'none');
+            surface(X, Y, Z, rearWall, 'Parent', obj.Axis, 'LineStyle', 'none');
+
          
   
             % Left Wall
-            [x, y, ~] = size(walls{2});
+            leftWall = walls{2};
+            [x, y, ~] = size(leftWall);
             [Z_left, Y_left] = meshgrid(-y:-1, 1:x);
             X_left = ones(x, y);
-            C = walls{2};
-            h2 = surface(X_left, Y_left, Z_left, C, 'Parent', obj.Axis);
-            set(h2, 'LineStyle', 'none');
-            
+            surface(X_left, Y_left, Z_left, leftWall, 'Parent', obj.Axis, 'LineStyle', 'none');
 
+            
             % Floor
-            [x, y, ~] = size(walls{3});
+            floor = walls{3};
+            [x, y, ~] = size(floor);
             [X_floor, Z_floor] = meshgrid(1:y, -x:-1);
             Y_floor = xBack * ones(x, y);
-            C = walls{3};
-            h3 = surface(X_floor, Y_floor, Z_floor, C, 'Parent', obj.Axis);
-            set(h3, 'LineStyle', 'none');
+            surface(X_floor, Y_floor, Z_floor, floor, 'Parent', obj.Axis, 'LineStyle', 'none');
             
             % Right Wall
-            [x, y, ~] = size(walls{4});
+            rightWall = walls{4};
+            [x, y, ~] = size(rightWall);
             [Z, Y] = meshgrid(-y:-1, 1:x);
             X = yBack * ones(x, y);
-            C = rot90(walls{4},2);
-            h4 = surface(X, Y, Z, C, 'Parent', obj.Axis);
-            set(h4, 'LineStyle', 'none');
+            C = rot90(rightWall,2);
+            surface(X, Y, Z, C, 'Parent', obj.Axis, 'LineStyle', 'none');
 
             % Ceiling
-            [x, y, ~] = size(walls{5});
+            ceiling = walls{5};
+            [x, y, ~] = size(ceiling);
             [X, Z] = meshgrid(1:y, -x:-1);
             Y = ones(x, y);
-            C = fliplr(walls{5});
-            h5 = surface(X, Y, Z, C, 'Parent', obj.Axis);
-            set(h5, 'LineStyle', 'none');
+            C = rot90(ceiling,2);
+            surface(X, Y, Z, C, 'Parent', obj.Axis, 'LineStyle', 'none');
+
 
             view(obj.Axis, 3); % 3D Ansicht setzen
-            % camlight(obj.Axis, 'headlight'); % Beleuchtung hinzufügen
-            lighting(obj.Axis, 'gouraud'); % Glatte Beleuchtung
+            %camlight(obj.Axis, 'headlight'); % Beleuchtung hinzufügen
+             lighting(obj.Axis, 'gouraud'); % Glatte Beleuchtung
 
             axis(obj.Axis, 'equal');
             set(obj.Axis, 'XTick', [], 'YTick', [], 'ZTick', []);
+            axis(obj.Axis, 'on');
+            hold(obj.Axis, 'off');
+
+           
+
+            view(obj.Axis, 3); % 3D Ansicht setzen
+            %camlight(obj.Axis, 'headlight'); % Beleuchtung hinzufügen
+            lighting(obj.Axis, 'gouraud'); % Glatte Beleuchtung
+
+            axis(obj.Axis, 'equal');
+            %set(obj.Axis, 'XTick', [], 'YTick', [], 'ZTick', []);
             axis(obj.Axis, 'on');
             hold(obj.Axis, 'off');
 
@@ -210,7 +225,7 @@ classdef Navigation3D < handle
             %   event - Key press event data
 
             %  Movement sensibility
-            stepSize = 10;
+            stepSize = 20;
             fixedHeight = obj.currentCameraPosition(2);
             switch event.Key
                 case 'w' % Move up
@@ -223,10 +238,13 @@ classdef Navigation3D < handle
                 case 'd' % Move right
                     direction = cross([0, 1, 0], obj.currentCameraDirection);      %direction vector perpendicular to the cameradirection
                     obj.currentCameraPosition = obj.currentCameraPosition + stepSize * direction;
+                case 'r' % Reset Position & Direction
+                    obj.currentCameraPosition = obj.startCameraPosition;
+                    obj.currentCameraDirection = obj.startCameraDirection;
             end
 
             % Keep camera height constant
-            obj.currentCameraPosition(2) = fixedHeight; 
+            %obj.currentCameraPosition(2) = fixedHeight; 
             
             %Update Camera
             obj.updateCamera();

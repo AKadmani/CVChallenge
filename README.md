@@ -32,7 +32,8 @@ Thank you for reading. Enjoy using it!
 
 
 ## Workflow
-![image](https://drive.google.com/file/d/1He-Sj5Rhe8WkWUlj2DApxMyHWEsbarpu/view?usp=drive_link)
+<img width="600" alt="workflow" src="https://github.com/AKadmani/CVChallenge/assets/49923307/2e5f22b1-6d42-45fb-8598-2b71699db8c9">
+
 ## Algorithm
 ### Reconstruct 3D coordinate
 Assume the vertical distance of one point on image to view plane equal to N pixels, then the 3D coordinate of every point on this image can be derived with the following mechanism:

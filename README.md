@@ -1,8 +1,8 @@
 # Tour-Into-The-Picture
 
-## Demo
+<!-- ## Demo
 
-https://user-images.githubusercontent.com/22386378/179780179-8f1c8389-f0b4-4ff0-9c4b-25f6dabf7ce4.mp4
+https://user-images.githubusercontent.com/22386378/179780179-8f1c8389-f0b4-4ff0-9c4b-25f6dabf7ce4.mp4 -->
 
 ## Introduction
 * This project has made a program, which reconstruct the 3D information on a single 2D picture with simple annotation by user and later visualize it as a tour into the picture. The technique is described in [Tour Into the Picture](http://graphics.cs.cmu.edu/courses/15-463/2011_fall/Papers/TIP.pdf) by Horry et al.
@@ -17,7 +17,7 @@ Please run `main.m` with the following step:
 > 2. Frame a rectangle close to the center
 > 3. Select a point within the rectangle you just outlined as the vanishing point
 > 4. Select a foreground object model %You can also skip this step without selecting the foreground object
-> 5. Click Start, you will see the 3d reconstructed picture, then use the camera toolbar to control the view
+> 5. Click Launch Analysis, you will see the 3d reconstructed picture, then use mouse and WSAD keys to control the view
 > 6. Click Reset, repeat step 1-5
 > 7. Click Quit, close the program
 
@@ -32,19 +32,7 @@ Thank you for reading. Enjoy using it!
 
 
 ## Workflow
-```mermaid
-graph TD
-A[Demarcate 3d picture] -->B(Foreground object?)
-    B --> |no| C{Reconstruct 3d coordinate}
-    B --> |yes| G{Crop foreground object in parallel}
-    C --> D[Homogeneous transformation]
-    D --> E[Projection 3d point back to the image point]
-    E --> F[Visualization]
-    G --> I[Reconstruct 3d coordinate]
-    I --> H[Fill the background]
-    H --> D[Homogeneous transformation]
-    
-```
+![image](https://drive.google.com/file/d/1He-Sj5Rhe8WkWUlj2DApxMyHWEsbarpu/view?usp=drive_link)
 ## Algorithm
 ### Reconstruct 3D coordinate
 Assume the vertical distance of one point on image to view plane equal to N pixels, then the 3D coordinate of every point on this image can be derived with the following mechanism:

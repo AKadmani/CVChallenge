@@ -27,11 +27,11 @@ classdef Navigation3D < handle
 
         function obj = initializeScene(obj, walls)
             [xBack,yBack,~] = size(walls{1});
-            [~,y,~] = size(walls{2});
+            [~,y,~] = size(walls{3});
             
             %Starting Position and Direction of the Camera
             %Startingpos -> Center of Rearwall + just outside of the room
-            obj.startCameraPosition    = [yBack/2,xBack/2, -1.1*y];
+            obj.startCameraPosition    = [yBack/2,xBack/2, -1.4*y];
             obj.startCameraDirection   = [0, 0, 1];
             obj.currentCameraPosition  = obj.startCameraPosition;
             obj.currentCameraDirection = obj.startCameraDirection;

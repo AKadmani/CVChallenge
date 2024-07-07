@@ -1,10 +1,8 @@
 % Navigation3D.m
-% Author: Vincent Amberger
 % Date: July 06, 2024
 % Version: 3.0
 % Description: This class creates a 3D room visualization with the ability to move the camera, 
 %              change the camera target, and zoom in and out using the mouse and keyboard inputs.
-
 
 classdef Navigation3D < handle
     properties
@@ -29,11 +27,11 @@ classdef Navigation3D < handle
 
         function obj = initializeScene(obj, walls)
             [xBack,yBack,~] = size(walls{1});
-            [~,y,~] = size(walls{3});
+            [~,y,~] = size(walls{2});
             
             %Starting Position and Direction of the Camera
             %Startingpos -> Center of Rearwall + just outside of the room
-            obj.startCameraPosition    = [yBack/2,xBack/2, -1.3*y];
+            obj.startCameraPosition    = [yBack/2,xBack/2, -1.1*y];
             obj.startCameraDirection   = [0, 0, 1];
             obj.currentCameraPosition  = obj.startCameraPosition;
             obj.currentCameraDirection = obj.startCameraDirection;
@@ -67,7 +65,6 @@ classdef Navigation3D < handle
             % Render 3D surfaces based on input data
             hold(obj.Axis, 'on');
             
-
             %Background
             rearWall = walls{1};
             [xBack, yBack, ~] = size(rearWall);
@@ -75,8 +72,6 @@ classdef Navigation3D < handle
             Z = zeros(xBack, yBack);
             surface(X, Y, Z, rearWall, 'Parent', obj.Axis, 'LineStyle', 'none');
 
-         
-  
             % Left Wall
             leftWall = walls{2};
             [x, y, ~] = size(leftWall);
@@ -84,7 +79,6 @@ classdef Navigation3D < handle
             X_left = ones(x, y);
             surface(X_left, Y_left, Z_left, leftWall, 'Parent', obj.Axis, 'LineStyle', 'none');
 
-            
             % Floor
             floor = walls{3};
             [x, y, ~] = size(floor);
@@ -108,24 +102,12 @@ classdef Navigation3D < handle
             C = rot90(ceiling,2);
             surface(X, Y, Z, C, 'Parent', obj.Axis, 'LineStyle', 'none');
 
-
-            view(obj.Axis, 3); % 3D Ansicht setzen
+            view(obj.Axis, 3); % set 3D view
             %camlight(obj.Axis, 'headlight'); % Beleuchtung hinzufügen
-             lighting(obj.Axis, 'gouraud'); % Glatte Beleuchtung
+            lighting(obj.Axis, 'gouraud'); % Smooth lighting
 
             axis(obj.Axis, 'equal');
             set(obj.Axis, 'XTick', [], 'YTick', [], 'ZTick', []);
-            axis(obj.Axis, 'on');
-            hold(obj.Axis, 'off');
-
-           
-
-            view(obj.Axis, 3); % 3D Ansicht setzen
-            %camlight(obj.Axis, 'headlight'); % Beleuchtung hinzufügen
-            lighting(obj.Axis, 'gouraud'); % Glatte Beleuchtung
-
-            axis(obj.Axis, 'equal');
-            %set(obj.Axis, 'XTick', [], 'YTick', [], 'ZTick', []);
             axis(obj.Axis, 'on');
             hold(obj.Axis, 'off');
 
@@ -161,7 +143,18 @@ classdef Navigation3D < handle
         
                 % Warp the image and alpha mask
                 [warpedImage, ~] = imwarp(image(min_y:max_y, min_x:max_x, :), p0, tform);
-                [warpedImage, warpedAlpha] = fgTransparency(warpedImage);
+                % Initialize the alpha mask with ones
+                alpha = ones(size(warpedImage,1),size(warpedImage,2));
+                 % Iterate over each pixel in the image
+                for i = 1 : size(warpedImage,1)
+                    for j = 1 :size(warpedImage,2)
+                        % Check if the pixel is very dark
+                        if warpedImage(i,j,1) <10 && warpedImage(i,j,2) <10  && warpedImage(i,j,3) <10 
+                            % Set the corresponding alpha value to 0 -> Transparent
+                            alpha(i,j) = 0;
+                        end
+                    end
+                end
 
             
                 % Prepare meshgrid for 3D surface
@@ -176,7 +169,7 @@ classdef Navigation3D < handle
                 % Create the 3D surface
                 h = surface(X,Y,Z,C);
                 set(h,'LineStyle','none');
-                h.AlphaData = warpedAlpha;
+                h.AlphaData = alpha;
                 h.FaceAlpha = 'flat';
 
                 hold(obj.Axis, 'off');
